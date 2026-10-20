@@ -319,7 +319,7 @@ figure.lamina figcaption{padding:10px 16px;font-size:13.5px;color:var(--muted);b
 
   <footer class="footer">
     <b>«La Maestría · Historia y ritual»</b> — trazado de la R∴L∴S∴ Armonía № 9, adaptado a recorrido interactivo.<br>
-    Esta página funciona sin conexión y conserva tus ediciones de texto en este navegador.
+    Contenido publicado en maestria-config.json de este repositorio. Tus ediciones aquí son borradores locales; exporta y haz commit en GitHub para actualizar la versión en línea.
   </footer>
 </main>
 
@@ -330,7 +330,7 @@ figure.lamina figcaption{padding:10px 16px;font-size:13.5px;color:var(--muted);b
       <h2 id="drawerTitle">Configurar textos</h2>
       <button type="button" class="btn" id="closeDrawer">✕ Cerrar</button>
     </div>
-    <p class="help">Edita los textos de cualquier hito. Guarda en este navegador o exporta un JSON para trasladar tus cambios a otro equipo. Puedes añadir y eliminar épocas.</p>
+    <p class="help">Edita los textos de cualquier hito. Aquí tus cambios son un <b>borrador de este navegador</b>. Para publicarlos en línea para todos: pulsa «Exportar JSON», entra a github.com/wamx01/la-maestria, abre <b>maestria-config.json</b>, edítalo (✏️), pega tu JSON y guarda el commit. En ~1 minuto queda en línea.</p>
     <div class="fields">
       <label>Introducción del trazado<textarea id="fieldIntro"></textarea></label>
       <label>Seleccionar hito<select id="editorSelect"></select></label>
@@ -353,7 +353,7 @@ figure.lamina figcaption{padding:10px 16px;font-size:13.5px;color:var(--muted);b
       <input id="importFile" type="file" accept=".json,application/json">
       <button type="button" class="btn" id="resetBtn">Restaurar original</button>
     </div>
-    <p class="editing-note" id="saveNote">Los cambios se guardan automáticamente en este dispositivo.</p>
+    <p class="editing-note" id="saveNote">Borrador local. Publica con «Exportar JSON» + commit en GitHub para que alcance a todos.</p>
   </aside>
 </div>
 
@@ -370,8 +370,20 @@ const LAMINAS = {
 
 const STORAGE_KEY='maestria-timeline-v2';
 function copy(o){return JSON.parse(JSON.stringify(o))}
-let app=copy(ORIGINAL),active=0, editing=0;
-try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));if(saved&&Array.isArray(saved.events))app=saved}catch(e){}
+function same(a,b){return JSON.stringify(a)===JSON.stringify(b)}
+let app=copy(ORIGINAL),active=0, editing=0, published=null;
+/* Jerarquía de datos: (1) maestria-config.json publicado en el repo; (2) borrador local
+   de este navegador (caduca cuando se publica una versión distinta en GitHub). */
+async function loadConfig(){
+  let remote=null, saved=null;
+  try{const r=await fetch('maestria-config.json');if(r.ok){const t=await r.json();if(t&&Array.isArray(t.events)&&t.events.length)remote=t}}catch(e){}
+  try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY));if(s&&Array.isArray(s.events)&&s.events.length)saved=s}catch(e){}
+  if(remote){
+    if(!same(remote,ORIGINAL)){app=remote;published=copy(remote);try{localStorage.removeItem(STORAGE_KEY)}catch(err){}}
+    else if(saved){app=saved}   // remoto = versión original y hay borrador local → conservar borrador
+    else{app=remote;published=copy(remote)}
+  } else if(saved){app=saved}   // abierta sin conexión (file://) → borrador local u original
+}
 const $=id=>document.getElementById(id);
 function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(app));$('saveNote').textContent='✓ Cambios guardados en este navegador.'}catch(e){$('saveNote').textContent='No se pudo guardar localmente. Exporta el JSON para conservar los cambios.'}}
 function node(tag,className,text){let x=document.createElement(tag);if(className)x.className=className;if(text!=null)x.textContent=text;return x}
@@ -412,7 +424,9 @@ let fab=document.createElement('button');fab.type='button';fab.id='settingsBtn';
 fab.style.cssText='position:fixed;bottom:18px;right:calc(18px + env(safe-area-inset-right,0px));width:46px;height:46px;border-radius:50%;border:1px solid var(--gold);background:var(--panel);color:var(--gold);font-size:19px;z-index:30;box-shadow:0 6px 20px rgba(0,0,0,.45)';
 fab.onclick=openEditor;document.body.append(fab);
 
-render();
+/* Arranque: intenta leer el contenido publicado en el repo (maestria-config.json); si
+   falla (file://, sin conexión) queda el original embebido o el borrador local. */
+loadConfig().then(()=>{render()}).catch(()=>{render()});
 </script>
 </body>
 </html>
