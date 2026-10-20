@@ -122,6 +122,7 @@ a{color:var(--blue)}
 .progress-track{height:3px;background:#23384a;flex:1;border-radius:3px;overflow:hidden;max-width:420px;min-width:120px}
 .progress-track i{display:block;background:var(--gold);height:100%;transition:.25s;width:5%}
 .btn{border:1px solid #4b6074;background:#16283b;color:var(--text,#efe7d3);border-radius:11px;padding:10px 15px;font-weight:650;transition:.2s;font-size:14.5px}
+a.btn{display:inline-block;text-decoration:none}
 .btn:hover{border-color:var(--gold);background:#223c55}
 .btn.gold{background:var(--gold);color:#14202c;border-color:var(--gold)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
@@ -330,7 +331,7 @@ figure.lamina figcaption{padding:10px 16px;font-size:13.5px;color:var(--muted);b
       <h2 id="drawerTitle">Configurar textos</h2>
       <button type="button" class="btn" id="closeDrawer">✕ Cerrar</button>
     </div>
-    <p class="help">Edita los textos de cualquier hito. Aquí tus cambios son un <b>borrador de este navegador</b>. Para publicarlos en línea para todos: pulsa «Exportar JSON», entra a github.com/wamx01/la-maestria, abre <b>maestria-config.json</b>, edítalo (✏️), pega tu JSON y guarda el commit. En ~1 minuto queda en línea.</p>
+    <p class="help">Edita los textos de cualquier hito. Aquí tus cambios son un <b>borrador de este navegador</b>. Para publicarlos en línea para todos: pulsa «Exportar JSON» (te baja tu contenido), luego «↗ Publicar en línea» (abre el editor de GitHub de ese archivo), borra el contenido y pega tu JSON → «Commit changes». En ~1 minuto queda en línea. También puedes editar el JSON a mano ahí mismo.</p>
     <div class="fields">
       <label>Introducción del trazado<textarea id="fieldIntro"></textarea></label>
       <label>Seleccionar hito<select id="editorSelect"></select></label>
@@ -349,6 +350,7 @@ figure.lamina figcaption{padding:10px 16px;font-size:13.5px;color:var(--muted);b
     </div>
     <div class="drawerActions">
       <button type="button" class="btn" id="exportBtn">↓ Exportar JSON</button>
+      <a class="btn" id="publishBtn" href="https://github.com/wamx01/la-maestria/edit/main/maestria-config.json" target="_blank" rel="noopener noreferrer" title="Abre el editor de GitHub de maestria-config.json; pega tu JSON exportado y haz Commit">↗ Publicar en línea</a>
       <button type="button" class="btn" id="importBtn">↑ Importar JSON</button>
       <input id="importFile" type="file" accept=".json,application/json">
       <button type="button" class="btn" id="resetBtn">Restaurar original</button>
